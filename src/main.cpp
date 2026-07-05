@@ -24,7 +24,7 @@ void setup() {
     tft.setTextColor(TFT_WHITE, TFT_BLACK); 
 
     // print initial boot status to screen
-    tft.drawString("Initializing BLE Radio System...", 15, 15, 2); 
+    tft.drawString("Initializing BLE Radio System...", 15, 15, 2);
 
     // 4. Fire up the Bluetooth engine
     BLEDevice::init("Pooboo_spin_bike");

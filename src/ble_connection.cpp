@@ -8,21 +8,6 @@
 static BLEUUID serviceUUID((uint16_t)0xFFF0);
 static BLEUUID charUUID((uint16_t)0xFFF1);
 
-static BLEAdvertisedDevice* myDevice = nullptr;
-class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
-    void onResult (BLEAdvertisedDevice advertisedDevice){
-        // check if the found device advertises the Cadence service
-        if (advertisedDevice.haveServiceUUID() && advertisedDevice.isAdvertisingService(serviceUUID) ){
-            Serial.print("Found Cadence Sensor Connecting to : ");
-            Serial.println( advertisedDevice.getAddress().toString().c_str() );
-
-            // Stop scanning and save the device reference to connect to it later
-            BLEDevice::getScan()->stop();
-            myDevice = new BLEAdvertisedDevice(advertisedDevice);
-        }
-    }
-};
-
 /* == This func. will make the inital connection to the specified MAC address
         while also checking for errors in the connection.
 
@@ -43,7 +28,6 @@ bool connectToDevice(BLEAddress target_device) {
         Serial.print("Error: Could not connect to this MAC address!");
         return false;
     }
-
     // Service living on bike sensor device : Service
     BLERemoteService *service = nullptr;
     service = client->getService(serviceUUID);
