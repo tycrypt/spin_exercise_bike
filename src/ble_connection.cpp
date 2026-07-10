@@ -3,6 +3,9 @@
 #include <BLEScan.h>
 #include <BLEUtils.h>
 #include "ble_connection.h"
+#include <lvgl.h>
+
+extern volatile int current_speed;
 
 void onDataRecieved (BLERemoteCharacteristic *character, uint8_t* packet_data, size_t packet_size, bool isNotify);
 // STD. bluetooth SIG UUID for cycling speed and cadence
@@ -80,7 +83,10 @@ void onDataRecieved (BLERemoteCharacteristic *character, uint8_t* packet_data, s
         float trueRate = rawRate / 5.0;
         // extract packet_data[9:10] : total revolutions
         uint16_t totalRevs = (packet_data[10] << 8) | packet_data[9];
-        Serial.printf("Packet Data ---> Live Rate: %.2f || Total Revolutions: %5d\n", trueRate, totalRevs);
+        Serial.print("SENDING DATA TO MAIN speed = ");
+        Serial.println(current_speed);
+        current_speed = (int)trueRate;
 
+        
     }
 }
