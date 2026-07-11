@@ -13,7 +13,7 @@ TFT_eSPI tft = TFT_eSPI();
 // 1. Declare the LVGL drawing buffer object
 static lv_disp_draw_buf_t draw_buf;
 // 2. Allocate the raw RAM for it (1/10th of a 480x320 screen is standard)
-static lv_color_t buf[ 480 * 10 ];
+static lv_color_t buf[ 480 * 18 ];
 
 lv_obj_t *arc;
 /* Display flushing function for TFT_eSPI */
@@ -100,15 +100,19 @@ void setup() {
     
     // }
 }
-
+long last_update = 0;
 void loop() {
-    if (current_speed != last_speed) {
-        if (arc != NULL) {
-            Serial.print("Updating speed to : ");
-            Serial.println(current_speed);
-            lv_arc_set_value(arc, current_speed);
+    // only update every 150ms
+    if (millis() - last_update > 150) {
+        if (current_speed != last_speed) {
+            if (arc != NULL) {
+                Serial.print("Updating speed to : ");
+                Serial.println(current_speed);
+                lv_arc_set_value(arc, current_speed);
+            }
+            last_speed = current_speed;
         }
-        last_speed = current_speed;
+        last_update = millis();
     }
     lv_tick_inc(5);
     lv_timer_handler();
