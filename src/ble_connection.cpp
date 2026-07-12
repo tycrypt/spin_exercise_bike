@@ -6,6 +6,7 @@
 #include <lvgl.h>
 
 extern volatile int current_speed;
+extern volatile long prev_rev_time;
 
 void onDataRecieved (BLERemoteCharacteristic *character, uint8_t* packet_data, size_t packet_size, bool isNotify);
 // STD. bluetooth SIG UUID for cycling speed and cadence
@@ -58,15 +59,18 @@ bool connectToDevice(BLEAddress target_device) {
 /* == This func. will act as a callback function to parse bytes that the device is sending
 
 */
+uint16_t lastRev = 0;
 void onDataRecieved (BLERemoteCharacteristic *character, uint8_t* packet_data, size_t packet_size, bool isNotify) {
     // Sloop Phase : print the raw hex
+    uint16_t totalRevs;
+    uint16_t rawRate;
     for ( int i = 0 ; i < packet_size ; i++ ){
         //print current packet
         Serial.printf("%02X", packet_data[i]);
         
     }
     Serial.println();
-
+    
     // ensure that the packet has finished populating
     if (packet_size >= 11) {
         /* extract packet_data[2:3] : combine packets 2 and 3
@@ -79,14 +83,17 @@ void onDataRecieved (BLERemoteCharacteristic *character, uint8_t* packet_data, s
         combined hex bytes           00101010 00111011  
         */
 
-        uint16_t rawRate = (packet_data[2] << 8) | packet_data[3];
+        rawRate = (packet_data[2] << 8) | packet_data[3];
         float trueRate = rawRate / 5.0;
         // extract packet_data[9:10] : total revolutions
-        uint16_t totalRevs = (packet_data[10] << 8) | packet_data[9];
+        totalRevs = (packet_data[10] << 8) | packet_data[9];
         Serial.print("SENDING DATA TO MAIN speed = ");
         Serial.println(current_speed);
         current_speed = (int)trueRate;
-
-        
+    }
+    // totalRevs is still increasing, reset time
+    if (totalRevs != lastRev){
+        prev_rev_time = millis();
+        lastRev = totalRevs;
     }
 }

@@ -5,6 +5,7 @@
 #include <ble_connection.h>
 #include <lvgl.h>
 
+volatile long prev_rev_time;
 volatile int current_speed = 0;
 int last_speed = -1;
 // Initialize the display library instance
@@ -102,6 +103,9 @@ void setup() {
 }
 long last_update = 0;
 void loop() {
+    if (millis() - prev_rev_time > 1250){
+        current_speed = 0;
+    }
     // only update every 150ms
     if (millis() - last_update > 150) {
         if (current_speed != last_speed) {
